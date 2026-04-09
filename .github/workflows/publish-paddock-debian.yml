@@ -24,11 +24,11 @@ jobs:
         run: |
           chmod 755 paddock/installers/deb/DEBIAN/postinst
           chmod 755 paddock/installers/deb/DEBIAN/prerm
-
+          
       - name: Build .deb package
         run: |
           dpkg-deb --build paddock/installers/deb
-          mv paddock/installers/deb.deb paddock-${{ env.VERSION }}-arm64.deb
+          mv paddock/installers/deb.deb paddock-arm64.deb
 
       - name: Push to Cloudsmith
         uses: cloudsmith-io/action@master
@@ -40,4 +40,4 @@ jobs:
           repo: paddock
           distro: debian
           release: any-version
-          file: paddock-${{ env.VERSION }}-arm64.deb
+          file: paddock-arm64.deb
