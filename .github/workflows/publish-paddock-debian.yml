@@ -17,16 +17,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set version from git sha
-        run: |
-          SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)
-          echo "VERSION=1.0.0-${SHORT_SHA}" >> $GITHUB_ENV
-
-      - name: Update control file version
-        run: sed -i "s/^Version: .*/Version: ${VERSION}/" paddock/installers/deb/DEBIAN/control
-        env:
-          VERSION: ${{ env.VERSION }}
-
       - name: Copy src into package structure
         run: cp -r paddock/src paddock/installers/deb/paddock
 
