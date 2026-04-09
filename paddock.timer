@@ -1,0 +1,12 @@
+[Unit]
+Description=Run paddock every 30 minutes
+Requires=paddock.service
+
+[Timer]
+Unit=paddock.service
+OnBootSec=1min
+OnUnitInactiveSec=30m
+AccuracySec=1s
+
+[Install]
+WantedBy=timers.target

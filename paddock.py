@@ -1,0 +1,87 @@
+import os
+import docker
+import requests
+import traceback
+
+IMAGE = 'docker.io/johannesrehrl/github-runners:arm64'
+
+print("Scheduled check for changes...")
+
+docker_client = docker.from_env()
+
+github_pat = os.environ.get('GITHUB_PAT')
+api = 'https://api.github.com'
+
+headers = {'Authorization': f'token {github_pat}'}
+
+if not github_pat:
+    raise RuntimeError('GITHUB_PAT is not set')
+
+try:
+    docker_client.images.pull('docker.io/johannesrehrl/github-runners', tag='arm64')
+    docker_client.containers.prune()
+
+    res = requests.get(api + '/user/repos', headers=headers)
+    res.raise_for_status()
+    response = res.json()
+
+    # Repos which are intended for self-hosted runners must have the Github topic 'self-hosted-runner'
+    repos_to_run = {
+        repo['name'] + '-runner': repo['full_name']
+        for repo in response
+        if 'self-hosted-runner' in repo['topics']
+    }
+    running_containers = {c.name: c.id for c in docker_client.containers.list()}
+
+    if set(repos_to_run.keys()) != set(running_containers.keys()):
+        print("Repository list changed, regenerating stack...")
+
+        # Check for repos that are missing a runner
+        for repo in set(repos_to_run.keys()) - set(running_containers.keys()):
+            print("Creating new runner container:", repo)
+
+            env = {
+                'REPO_NAME': repos_to_run[repo],
+                'GITHUB_PAT': github_pat,
+                'RUNNER_NAME': repo,
+            }
+
+            container = docker_client.containers.run(
+                image=IMAGE, 
+                environment=env, 
+                name=repo,
+                detach=True)
+
+        # Check for runners that serve a no longer applicable repo
+        for repo in set(running_containers.keys()) - set(repos_to_run.keys()):
+            print("Shutting down unneeded runner container:", repo)
+            container = docker_client.containers.get(running_containers[repo])
+            container.stop()             
+            container.remove() 
+
+    else:
+        print("Check passed, no changes to repo list.")
+
+    running_containers = {c.name: c.id for c in docker_client.containers.list()}
+    new_image_id = docker_client.images.get(IMAGE).id
+    for name, container_id in running_containers.items():
+        container = docker_client.containers.get(container_id)
+        if container.image.id != new_image_id:
+            print(f"Restarting {name} on new image...")
+            container.stop()
+            container.remove()
+            docker_client.containers.run(
+                image=IMAGE,
+                environment={
+                    'REPO_NAME': repos_to_run[name],
+                    'GITHUB_PAT': github_pat,
+                    'RUNNER_NAME': name,
+                },
+                name=name,
+                detach=True
+        )
+        
+
+except Exception as e:
+    print(f"An error occurred: {e}")
+    traceback.print_exc()
