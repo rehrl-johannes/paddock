@@ -1,0 +1,51 @@
+name: publish-paddock-debian
+
+run-name: Publish Paddock Debian package - ${{ github.sha }}
+on:
+  push: 
+    paths:
+      - "paddock/src/**"
+      - "paddock/installers/deb/**"
+      - ".github/workflows/publish-paddock-debian.yml"
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set version from git sha
+        run: |
+          SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)
+          echo "VERSION=1.0.0-${SHORT_SHA}" >> $GITHUB_ENV
+
+      - name: Update control file version
+        run: sed -i "s/^Version: .*/Version: ${{ env.VERSION }}/" paddock/installers/deb/DEBIAN/control
+
+      - name: Copy src into package structure
+        run: cp -r paddock/src paddock/installers/deb/paddock
+
+      - name: Set permissions on scripts
+        run: |
+          chmod 755 paddock/installers/deb/DEBIAN/postinst
+          chmod 755 paddock/installers/deb/DEBIAN/prerm
+
+      - name: Build .deb package
+        run: |
+          dpkg-deb --build paddock/installers/deb
+          mv paddock/installers/deb.deb paddock-${{ env.VERSION }}-arm64.deb
+
+      - name: Push to Cloudsmith
+        uses: cloudsmith-io/action@master
+        with:
+          api-key: ${{ secrets.CLOUDSMITH_API_KEY }}
+          command: push
+          format: deb
+          owner: paddock
+          repo: paddock
+          distro: debian
+          release: any-version
+          file: paddock-${{ env.VERSION }}-arm64.deb
