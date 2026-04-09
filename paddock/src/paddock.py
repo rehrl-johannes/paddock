@@ -10,12 +10,15 @@ print("Scheduled check for changes...")
 docker_client = docker.from_env()
 
 github_pat = os.environ.get('GITHUB_PAT')
+github_tag = os.environ.get('GITHUB_TAG')
 api = 'https://api.github.com'
 
 headers = {'Authorization': f'token {github_pat}'}
 
 if not github_pat:
     raise RuntimeError('GITHUB_PAT is not set')
+if not github_tag:
+    raise RuntimeError('GITHUB_TAG is not set')
 
 try:
     docker_client.images.pull('docker.io/johannesrehrl/github-runners', tag='arm64')
@@ -25,11 +28,11 @@ try:
     res.raise_for_status()
     response = res.json()
 
-    # Repos which are intended for self-hosted runners must have the Github topic 'self-hosted-runner'
+    # Repos which are intended for self-hosted runners must have the correct Github topic (github_tag)
     repos_to_run = {
         repo['name'] + '-runner': repo['full_name']
         for repo in response
-        if 'self-hosted-runner' in repo['topics']
+        if github_tag in repo['topics']
     }
     running_containers = {c.name: c.id for c in docker_client.containers.list()}
 

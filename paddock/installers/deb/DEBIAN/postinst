@@ -1,0 +1,22 @@
+#!/bin/bash
+set -e
+
+echo "=== Paddock Setup ==="
+read -s -p "GitHub Personal Access Token: " github_pat
+echo
+read -p "GitHub Topic Tag (default: self-hosted-runner): " github_tag
+
+github_tag=${github_tag:-self-hosted-runner}
+
+cat > /paddock/env.list <<EOF
+GITHUB_PAT=$github_pat
+GITHUB_TAG=$github_tag
+EOF
+
+chmod 600 /paddock/env.list
+
+systemctl daemon-reload
+systemctl enable paddock.timer
+systemctl start paddock.timer
+
+echo "Paddock installed and running."

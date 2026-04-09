@@ -1,0 +1,6 @@
+Package: paddock
+Version: 1.0.0
+Architecture: arm64
+Maintainer: Johannes Rehrl <johannes.rehrl.dev@gmail.com>
+Depends: python3, python3-requests, python3-docker
+Description: Manages self-hosted GitHub Actions runners as Docker containers
