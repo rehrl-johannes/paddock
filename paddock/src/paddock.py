@@ -3,7 +3,24 @@ import docker
 import requests
 import traceback
 
-IMAGE = 'docker.io/johannesrehrl/github-runners:arm64'
+import platform
+
+def get_architecture():
+    arch = platform.machine()
+    if arch == 'aarch64':
+        return 'arm64'
+    elif arch == 'x86_64':
+        return 'x64'
+    elif arch == 'armv7l':
+        return 'arm'
+    elif arch.startswith('arm'):
+        raise RuntimeError(f'Unsupported ARM version: {arch} (minimum ARMv7 required)')
+    else:
+        raise RuntimeError(f'Unsupported architecture: {arch}')
+
+IMAGE = 'docker.io/johannesrehrl/github-runners'
+arch_tag = get_architecture()
+IMAGE_WITH_TAG = f'{IMAGE}:{arch_tag}'
 
 print("Scheduled check for changes...")
 
@@ -21,7 +38,7 @@ if not github_tag:
     raise RuntimeError('GITHUB_TAG is not set')
 
 try:
-    docker_client.images.pull('docker.io/johannesrehrl/github-runners', tag='arm64')
+    docker_client.images.pull(IMAGE, tag=arch_tag)
     docker_client.containers.prune()
 
     res = requests.get(api + '/user/repos', headers=headers)
@@ -50,7 +67,7 @@ try:
             }
 
             container = docker_client.containers.run(
-                image=IMAGE, 
+                image=IMAGE_WITH_TAG, 
                 environment=env, 
                 name=repo,
                 detach=True)
@@ -66,7 +83,7 @@ try:
         print("Check passed, no changes to repo list.")
 
     running_containers = {c.name: c.id for c in docker_client.containers.list()}
-    new_image_id = docker_client.images.get(IMAGE).id
+    new_image_id = docker_client.images.get(IMAGE_WITH_TAG).id
     for name, container_id in running_containers.items():
         container = docker_client.containers.get(container_id)
         if container.image.id != new_image_id:
@@ -74,7 +91,7 @@ try:
             container.stop()
             container.remove()
             docker_client.containers.run(
-                image=IMAGE,
+                image=IMAGE_WITH_TAG,
                 environment={
                     'REPO_NAME': repos_to_run[name],
                     'GITHUB_PAT': github_pat,
