@@ -1,6 +1,6 @@
 # Paddock
 
-Paddock is a lightweight tool for automating containerised github actions runners on a device.
+Paddock is a lightweight tool for automating the managment of containerised GitHub Actions runners.
 
 ## How to install
 
@@ -9,7 +9,7 @@ Paddock is a lightweight tool for automating containerised github actions runner
 Add the Paddock repository and install:
 
 ```bash
-curl -1sLf 'https://dl.cloudsmith.io/public/paddock/paddock/setup.deb.sh' | sudo bash
+curl -1sLf 'https://dl.cloudsmith.io/public/paddock/paddock/setup.deb.sh' | sudo -E bash
 sudo apt install paddock
 ```
 
