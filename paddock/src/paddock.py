@@ -69,6 +69,7 @@ try:
             container = docker_client.containers.run(
                 image=IMAGE_WITH_TAG, 
                 environment=env, 
+                restart_policy={"Name": "always"},
                 name=repo,
                 detach=True)
 
@@ -90,13 +91,17 @@ try:
             print(f"Restarting {name} on new image...")
             container.stop()
             container.remove()
+
+            env = {
+                'REPO_NAME': repos_to_run[name],
+                'GITHUB_PAT': github_pat,
+                'RUNNER_NAME': name,
+            }
+
             docker_client.containers.run(
                 image=IMAGE_WITH_TAG,
-                environment={
-                    'REPO_NAME': repos_to_run[name],
-                    'GITHUB_PAT': github_pat,
-                    'RUNNER_NAME': name,
-                },
+                environment=env,
+                restart_policy={"Name": "always"},
                 name=name,
                 detach=True
         )

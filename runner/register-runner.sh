@@ -10,7 +10,8 @@ REG_TOKEN=$(curl -s -X POST -H "Authorization: token ${GITHUB_PAT}" https://api.
   --name "${RUNNER_NAME}" \
   --work _work \
   --unattended \
-  --replace
+  --replace \
+  --ephemeral
 
 # Run the runner
 exec /actions-runner/run.sh
