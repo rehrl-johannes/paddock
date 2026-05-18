@@ -1,11 +1,11 @@
-name: publish-runner-arm64
+name: publish-runner-x64
 
-run-name: Publish arm64 runner - ${{ github.sha }}
+run-name: Publish x64 runner - ${{ github.sha }}
 on:
-  push: 
+  push:
     paths:
       - "runner/**"
-      - ".github/workflows/publish-runner-arm64.yml"
+      - ".github/workflows/publish-runner-x64.yml"
     branches:
       - main
   workflow_dispatch:
@@ -43,8 +43,8 @@ jobs:
           context: ./runner/
           file: ./runner/Dockerfile
           push: true
-          platforms: linux/arm64
-          build-args: ARCHITECTURE=arm64
+          platforms: linux/amd64
+          build-args: ARCHITECTURE=x64
           tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}-arm64
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:arm64
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}-x64
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:x64

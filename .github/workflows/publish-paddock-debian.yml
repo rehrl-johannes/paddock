@@ -18,7 +18,9 @@ jobs:
       - uses: actions/checkout@v6
 
       - name: Copy src into package structure
-        run: cp -r paddock/src paddock/installers/deb/usr/lib/paddock
+        run: |
+          mkdir -p paddock/installers/deb/usr/lib/paddock
+          cp -r paddock/src/. paddock/installers/deb/usr/lib/paddock
 
       - name: Set permissions on scripts
         run: |
