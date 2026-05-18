@@ -18,7 +18,7 @@ RUN apt update -y && apt upgrade -y && apt install -y  \
     libssl-dev \
     libkrb5-3 \
     zlib1g \
-    libcurl4 \
+    libcurl4t64 \
     libunwind8 \
     libuuid1 \
     && rm -rf /var/lib/apt/lists/*
