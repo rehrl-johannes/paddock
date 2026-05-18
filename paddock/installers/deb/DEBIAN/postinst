@@ -8,12 +8,12 @@ read -p "GitHub Topic Tag (default: self-hosted-runner): " github_tag
 
 github_tag=${github_tag:-self-hosted-runner}
 
-cat > /paddock/env.list <<EOF
+mkdir -p /etc/paddock
+cat > /etc/paddock/env.list <<EOF
 GITHUB_PAT=$github_pat
 GITHUB_TAG=$github_tag
 EOF
-
-chmod 600 /paddock/env.list
+chmod 600 /etc/paddock/env.list
 
 systemctl daemon-reload
 systemctl enable paddock.timer
