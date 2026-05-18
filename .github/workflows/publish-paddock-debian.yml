@@ -30,7 +30,7 @@ jobs:
       - name: Build .deb package
         run: |
           dpkg-deb --build paddock/installers/deb
-          mv paddock/installers/deb.deb paddock-arm64.deb
+          mv paddock/installers/deb.deb paddock.deb
 
       - name: Push to Cloudsmith
         uses: cloudsmith-io/action@master
@@ -40,6 +40,6 @@ jobs:
           format: deb
           owner: paddock
           repo: paddock
-          distro: debian
+          distro: any-distro
           release: any-version
-          file: paddock-arm64.deb
+          file: paddock.deb
