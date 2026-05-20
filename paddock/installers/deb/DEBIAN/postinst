@@ -16,7 +16,9 @@ EOF
 chmod 600 /etc/paddock/env.list
 
 systemctl daemon-reload
-systemctl enable paddock.timer
-systemctl start paddock.timer
+systemctl enable paddock_watcher.service
+systemctl enable paddock_manager.timer
+systemctl restart paddock_watcher.service
+systemctl restart paddock_manager.timer
 
 echo "Paddock installed and running."

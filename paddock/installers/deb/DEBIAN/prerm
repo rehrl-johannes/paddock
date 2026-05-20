@@ -1,6 +1,8 @@
 #!/bin/bash
 
-systemctl stop paddock.timer
-systemctl disable paddock.timer
-systemctl stop paddock.service
-systemctl disable paddock.service
+systemctl stop paddock_manager.timer
+systemctl disable paddock_manager.timer
+systemctl stop paddock_manager.service
+systemctl disable paddock_manager.service
+systemctl stop paddock_watcher.service
+systemctl disable paddock_watcher.service
