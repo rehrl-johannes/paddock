@@ -69,7 +69,7 @@ try:
             container = docker_client.containers.run(
                 image=IMAGE_WITH_TAG, 
                 environment=env, 
-                restart_policy={"Name": "always"},
+                labels={"repo_full_name": repos_to_run[repo]},  
                 name=repo,
                 detach=True)
 
@@ -101,7 +101,7 @@ try:
             docker_client.containers.run(
                 image=IMAGE_WITH_TAG,
                 environment=env,
-                restart_policy={"Name": "always"},
+                labels={"repo_full_name": repos_to_run[name]},  
                 name=name,
                 detach=True
         )

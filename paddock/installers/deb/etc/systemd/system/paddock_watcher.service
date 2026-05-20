@@ -1,9 +1,8 @@
 [Unit]
-Description=Runs paddock script
-Wants=paddock.timer
+Description=Runs paddock watcher script
 
 [Service]
-ExecStart=/usr/bin/python3 -E /usr/lib/paddock/paddock.py
+ExecStart=/usr/bin/python3 -E /usr/lib/paddock/watcher.py
 WorkingDirectory=/usr/lib/paddock
 EnvironmentFile=/etc/paddock/env.list
 Restart=on-failure
