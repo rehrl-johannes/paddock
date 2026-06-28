@@ -1,6 +1,6 @@
 # Paddock
 
-Paddock is a lightweight tool for automating the managment of containerised GitHub Actions runners.
+Paddock is a lightweight tool for automating the management of containerised GitHub Actions runners.
 
 ## How to install
 
